@@ -1,3 +1,7 @@
+.idea/
+*.pyc
+.DS_Store
+./__init__.py
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -45,7 +49,6 @@ nosetests.xml
 coverage.xml
 *.cover
 .hypothesis/
-.pytest_cache/
 
 # Translations
 *.mo
@@ -53,8 +56,9 @@ coverage.xml
 
 # Django stuff:
 *.log
+.static_storage/
+.media/
 local_settings.py
-db.sqlite3
 
 # Flask stuff:
 instance/
@@ -102,3 +106,27 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# vim
+*.swp
+*.swm
+*.swn
+*.swo
+
+# pytorch models
+*.pth.tar
+result/
+
+# setup.py
+version.py
+
+# jupyter dummy files
+core
+
+
+.vscode
+
+
+
+# Project directories
+saved_models
