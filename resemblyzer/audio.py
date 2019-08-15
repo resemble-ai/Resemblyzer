@@ -1,5 +1,5 @@
 from scipy.ndimage.morphology import binary_dilation
-from resemblyzer.encoder.params_data import *
+from resemblyzer.hparams import *
 from pathlib import Path
 from typing import Optional, Union
 import numpy as np
@@ -10,11 +10,10 @@ import struct
 int16_max = (2 ** 15) - 1
 
 
-def preprocess_wav(fpath_or_wav: Union[str, Path, np.ndarray],
-                   source_sr: Optional[int] = None):
+def preprocess_wav(fpath_or_wav: Union[str, Path, np.ndarray], source_sr: Optional[int]=None):
     """
-    Applies the preprocessing operations used in training the Speaker Encoder to a waveform 
-    either on disk or in memory. The waveform will be resampled to match the data hyperparameters.
+    Applies preprocessing operations to a waveform either on disk or in memory such that  
+    The waveform will be resampled to match the data hyperparameters.
 
     :param fpath_or_wav: either a filepath to an audio file (many extensions are supported, not 
     just .wav), either the waveform as a numpy array of floats.
@@ -29,8 +28,8 @@ def preprocess_wav(fpath_or_wav: Union[str, Path, np.ndarray],
     else:
         wav = fpath_or_wav
     
-    # Resample the wav if needed
-    if source_sr is not None and source_sr != sampling_rate:
+    # Resample the wav
+    if source_sr is not None:
         wav = librosa.resample(wav, source_sr, sampling_rate)
         
     # Apply the preprocessing: normalize volume and shorten long silences 
