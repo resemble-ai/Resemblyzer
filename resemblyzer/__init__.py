@@ -1,3 +1,3 @@
-from resemblyzer.inference import embed_utterance, embed_frames_batch, \
-    plot_embedding_as_heatmap, compute_partial_slices, embed_speaker, load_model, is_loaded
-
+from resemblyzer.audio import preprocess_wav, wav_to_mel_spectrogram, trim_long_silences, \
+    normalize_volume
+from resemblyzer.voice_encoder import VoiceEncoder
