@@ -1,14 +1,15 @@
 from resemblyzer.hparams import *
 from resemblyzer import audio
 from pathlib import Path
-from typing import Union
+from typing import Union, List
 from torch import nn
+from time import perf_counter as timer
 import numpy as np
 import torch
 
 
 class VoiceEncoder(nn.Module):
-    def __init__(self, device: Union[str, torch.device]=None):
+    def __init__(self, device: Union[str, torch.device]=None, verbose=True):
         """
         :param device: either a torch device or the name of a torch device (e.g. "cpu", "cuda"). 
         If None, defaults to cuda if it is available on your machine, otherwise the model will 
@@ -33,9 +34,14 @@ class VoiceEncoder(nn.Module):
         if not weights_fpath.exists():
             raise Exception("Couldn't find the voice encoder pretrained model at %s." % 
                             weights_fpath)
+        start = timer()
         checkpoint = torch.load(weights_fpath, map_location="cpu")
         self.load_state_dict(checkpoint["model_state"], strict=False)
         self.to(device)
+        
+        if verbose:
+            print("Loaded the voice encoder model on %s in %.2f seconds." % 
+                  (device.type, timer() - start))
 
     def forward(self, mels: torch.FloatTensor):
         """
@@ -110,6 +116,8 @@ class VoiceEncoder(nn.Module):
         Computes an embedding for a single utterance. The utterance is divided in partial 
         utterances and an embedding is computed for each. The complete utterance embedding is the 
         L2-normed average embedding of the partial utterances.
+        
+        TODO: independent batched version of this function
     
         :param wav: a preprocessed utterance waveform as a numpy array of float32
         :param return_partials: if True, the partial embeddings will also be returned along with 
@@ -150,3 +158,16 @@ class VoiceEncoder(nn.Module):
             return embed, partial_embeds, wav_slices
         return embed
     
+    def embed_speaker(self, wavs: List[np.ndarray], **kwargs):
+        """
+        Compute the embedding of a collection of wavs (presumably from the same speaker) by 
+        averaging their embedding and L2-normalizing it.
+        
+        :param wavs: list of wavs a numpy arrays of float32.
+        :param kwargs: extra arguments to embed_utterance()
+        :return: the embedding as a numpy array of float32 of shape (model_embedding_size,).
+        """
+        raw_embed = np.mean([self.embed_utterance(wav, return_partials=False, **kwargs) \
+                             for wav in wavs], axis=0)
+        return raw_embed / np.linalg.norm(raw_embed, 2)
+        
