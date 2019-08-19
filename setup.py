@@ -11,7 +11,7 @@ setup(
     version="0.0.1-dev",
     packages=find_packages(),
     package_data={
-        "resemblyzer": ["resemblyzer/pretrained.pt"]
+        "resemblyzer": ["pretrained.pt"]
     },
     install_requires=requirements,
     author="Corentin Jemine",
