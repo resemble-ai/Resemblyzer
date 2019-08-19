@@ -8,11 +8,12 @@ with open("requirements.txt", "r") as f:
 
 setup(
     name="Resemblyzer",
-    version="0.0.1-dev",
+    version="0.1.0-dev",
     packages=find_packages(),
     package_data={
         "resemblyzer": ["pretrained.pt"]
     },
+    python_requires=">=3.5",
     install_requires=requirements,
     author="Corentin Jemine",
     author_email="corentin@resemble.ai",
