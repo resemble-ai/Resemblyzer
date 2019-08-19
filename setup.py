@@ -1,18 +1,18 @@
 from setuptools import setup, find_packages
 
-with open("README.MD", "r") as fh:
-    long_description = fh.read()
+with open("README.MD", "r") as f:
+    long_description = f.read()
 
-with open('requirements.txt') as f:
+with open("requirements.txt", "r") as f:
     requirements = f.read().splitlines()
 
 setup(
     name="Resemblyzer",
     version="0.0.1-dev",
     packages=find_packages(),
-    # package_data={
-    #     
-    # },
+    package_data={
+        "resemblyzer": ["resemblyzer/pretrained.pt"]
+    },
     install_requires=requirements,
     author="Corentin Jemine",
     author_email="corentin@resemble.ai",
