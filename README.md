@@ -16,6 +16,7 @@ This is a short example showing how to use Resemblyzer:
 ```
 from resemblyzer import VoiceEncoder, preprocess_wav
 from pathlib import Path
+import numpy as np
 
 fpath = Path("path_to_an_audio_file")
 wav = preprocess_wav(fpath)
