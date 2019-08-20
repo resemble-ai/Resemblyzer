@@ -28,5 +28,8 @@ print(embed)
 ```
 More thorough examples demonstrating the use cases of Resemblyzer can be found in [examples.py](https://github.com/resemble-ai/Resemblyzer/blob/master/examples.py).
 
+## Installation
+`pip install resemblyzer`, python 3.5+ is required.
+
 ## Additional info
 Resemblyzer emerged as a side project of the [Real-Time Voice Cloning](https://github.com/CorentinJ/Real-Time-Voice-Cloning) repository. The pretrained model that comes with Resemblyzer is interchangeable with models trained in that repository, so feel free to finetune a model on new data and possibly new languages! The paper from which the voice encoder was implemented is [Generalized End-To-End Loss for Speaker Verification](https://arxiv.org/pdf/1710.10467.pdf) (in which it is called the *speaker* encoder).
