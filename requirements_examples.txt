@@ -1,0 +1,7 @@
+librosa>=0.6.1
+numpy>=1.10.1
+webrtcvad>=2.0.10
+torch>=1.0.1
+scipy>=1.2.1
+typing
+matplotlib>=3.0.0

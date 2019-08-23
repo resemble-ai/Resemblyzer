@@ -3,12 +3,12 @@ from setuptools import setup, find_packages
 with open("README.MD", "r") as f:
     long_description = f.read()
 
-with open("requirements.txt", "r") as f:
+with open("requirements_package.txt", "r") as f:
     requirements = f.read().splitlines()
 
 setup(
     name="Resemblyzer",
-    version="0.1.0-dev",
+    version="0.1.1-dev",
     packages=find_packages(),
     package_data={
         "resemblyzer": ["pretrained.pt"]
