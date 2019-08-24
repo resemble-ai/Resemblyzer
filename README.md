@@ -11,7 +11,12 @@ Resemblyzer allows you to derive a **high-level representation of a voice** thro
 
 Resemblyzer is fast to execute (around 1000x real-time on a GTX 1080, with a minimum of 10ms for I/O operations), and can run both on CPU or GPU. It is robust to noise. It currently works best on English language only, but should still be able to perform somewhat decently on other languages.
 
+
 ## Examples
+Comparing 10 utterances from 10 speakers against 10 other utterances from the same speakers. This was done on a smaller version of LibriSpeech test-clean.
+![sim_matrix_1](plots/sim_matrix_1.png?raw=true)
+
+
 This is a short example showing how to use Resemblyzer:
 ```
 from resemblyzer import VoiceEncoder, preprocess_wav

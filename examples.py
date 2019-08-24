@@ -1,6 +1,8 @@
+from examples_utils import *
 from resemblyzer import preprocess_wav, VoiceEncoder
 from itertools import groupby
 from pathlib import Path
+from tqdm import tqdm
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -18,16 +20,16 @@ wav_fpaths = list(Path("librispeech_test-other").glob("**/*.flac"))
 # Group the wavs per speaker and load them using the preprocessing function provided with 
 # resemblyzer to load wavs in memory. It normalizes the volume, trims long silences and resamples 
 # the wav to the correct sampling rate.
-spearker_wavs = {speaker: list(map(preprocess_wav, wav_fpaths)) for speaker, wav_fpaths in 
-                 groupby(wav_fpaths, lambda wav_fpath: wav_fpath.parent.stem)} 
+speaker_wavs = {speaker: list(map(preprocess_wav, wav_fpaths)) for speaker, wav_fpaths in
+                groupby(tqdm(wav_fpaths, "Preprocessing wavs", len(wav_fpaths), unit="wavs"), 
+                        lambda wav_fpath: wav_fpath.parent.stem)}
 
 
 def demo_similarity_matrix():
-    
     ## Similarity between two utterances from each speaker
     # Embed two utterances A and B for each speaker
-    embeds_a = np.array([encoder.embed_utterance(wavs[0]) for wavs in spearker_wavs.values()])
-    embeds_b = np.array([encoder.embed_utterance(wavs[-1]) for wavs in spearker_wavs.values()])
+    embeds_a = np.array([encoder.embed_utterance(wavs[0]) for wavs in speaker_wavs.values()])
+    embeds_b = np.array([encoder.embed_utterance(wavs[1]) for wavs in speaker_wavs.values()])
     # Each array is of shape (num_speakers, embed_size) which should be (10, 256) if you haven't 
     # changed anything.
     print("Shape of embeddings: %s" % str(embeds_a.shape))
@@ -36,24 +38,42 @@ def demo_similarity_matrix():
     # product, because the similarity metric is the cosine similarity and the embeddings are 
     # already L2-normed.
     # Short version:
-    sim_matrix = np.inner(embeds_a, embeds_b)
+    utt_sim_matrix = np.inner(embeds_a, embeds_b)
     # Long, detailed version:
-    sim_matrix2 = np.zeros((len(embeds_a), len(embeds_b)))
+    utt_sim_matrix2 = np.zeros((len(embeds_a), len(embeds_b)))
     for i in range(len(embeds_a)):
         for j in range(len(embeds_b)):
             # The @ notation is exactly equivalent to np.dot(embeds_a[i], embeds_b[i])
-            sim_matrix2[i, j] = embeds_a[i] @ embeds_b[j]
-    assert np.allclose(sim_matrix, sim_matrix2)
+            utt_sim_matrix2[i, j] = embeds_a[i] @ embeds_b[j]
+    assert np.allclose(utt_sim_matrix, utt_sim_matrix2)
     
     
-    ## Similarity between speaker embeddings and utterances 
+    ## Similarity between two speaker embeddings
     # Embed the speakers, excluding the utterance that will be used for comparison to avoid bias.  
-    speaker_embeds = np.array([encoder.embed_speaker(wavs[1:]) for wavs in spearker_wavs.values()])
-    sim_matrix = np.inner(speaker_embeds, embeds_a)
-    breakpoint()
+    spk_embeds_a = np.array([encoder.embed_speaker(wavs[:len(wavs) // 2]) \
+                             for wavs in speaker_wavs.values()])
+    spk_embeds_b = np.array([encoder.embed_speaker(wavs[len(wavs) // 2:]) \
+                             for wavs in speaker_wavs.values()])
+    spk_sim_matrix = np.inner(spk_embeds_a, spk_embeds_b)
+
     
-    
-    
+    ## Draw the plots
+    fix, axs = plt.subplots(2, 2, figsize=(8, 10))
+    labels_a = ["%s-A" % i for i in speaker_wavs.keys()]
+    labels_b = ["%s-B" % i for i in speaker_wavs.keys()]
+    mask = np.eye(len(utt_sim_matrix), dtype=np.bool)
+    plot_similarity_matrix(utt_sim_matrix, labels_a, labels_b, axs[0, 0],
+                           "Cross-similarity between utterances\n(speaker_id-utterance_group)")
+    plot_histograms((utt_sim_matrix[mask], utt_sim_matrix[np.logical_not(mask)]), axs[0, 1],
+                    ["Same speaker", "Different speakers"], 
+                    "Normalized histogram of similarity\nvalues between utterances")
+    plot_similarity_matrix(spk_sim_matrix, labels_a, labels_b, axs[1, 0],
+                           "Cross-similarity between speakers\n(speaker_id-utterances_group)")
+    plot_histograms((spk_sim_matrix[mask], spk_sim_matrix[np.logical_not(mask)]), axs[1, 1],
+                    ["Same speaker", "Different speakers"], 
+                    "Normalized histogram of similarity\nvalues between speakers")
+    plt.show()
+
     
 
 
