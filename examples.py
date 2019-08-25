@@ -16,7 +16,7 @@ encoder = VoiceEncoder()
 # We'll use a smaller version of the dataset LibriSpeech test-other to run our examples. This 
 # smaller dataset contains 10 speakers with 10 utterances each. N.B. "wav" in variable names stands
 # for "waveform" and not the wav file extension.
-wav_fpaths = list(Path("librispeech_test-other").glob("**/*.flac"))
+wav_fpaths = list(Path("audio_data", "librispeech_test-other").glob("**/*.flac"))
 # Group the wavs per speaker and load them using the preprocessing function provided with 
 # resemblyzer to load wavs in memory. It normalizes the volume, trims long silences and resamples 
 # the wav to the correct sampling rate.
@@ -74,46 +74,43 @@ def demo_similarity_matrix():
                     "Normalized histogram of similarity\nvalues between speakers")
     plt.show()
 
+
+def demo_speaker_diarization():
+    ## Get reference audios
+    # Load the interview audio from disk
+    # Source for the interview: https://www.youtube.com/watch?v=X2zqiX6yL3I
+    wav_fpath = Path("audio_data", "X2zqiX6yL3I.mp3")
+    wav = preprocess_wav(wav_fpath)
     
+    # Cut some segments from single speakers as reference audio
+    segments = [[0, 5.5], [6.5, 12], [17, 25]]
+    speaker_names = ["Kyle Gass", "Sean Evans", "Jack Black"]
+    speaker_wavs = [wav[int(s[0] * sampling_rate):int(s[1]) * sampling_rate] for s in segments]
+      
+        
+    ## Compare speaker embeds to the continuous embedding of the interview
+    # Derive a continuous embedding of the interview. We put a rate of 16, meaning that an 
+    # embedding is generated every 0.0625 seconds. It is good to have a higher rate for speaker 
+    # diarization, but it is not so useful for when you only need a summary embedding of the 
+    # entire utterance. A rate of 2 would have been enough, but 16 is nice for the sake of the 
+    # demonstration. 
+    # We'll exceptionally force to run this on CPU, because it uses a lot of RAM and most GPUs 
+    # won't have enough. There's a speed drawback, but it remains reasonable.
+    cpu_encoder = VoiceEncoder("cpu")
+    print("Running the continuous embedding on the CPU, this might take a while...")
+    _, cont_embeds, wav_splits = cpu_encoder.embed_utterance(wav, return_partials=True, rate=16)
+    
+    # Get the continuous similarity for every speaker. It amounts to a dot product between the 
+    # embedding of the speaker and the continuous embedding of the interview
+    speaker_embeds = [encoder.embed_utterance(speaker_wav) for speaker_wav in speaker_wavs]
+    similarity_dict = {name: cont_embeds @ speaker_embed for name, speaker_embed in 
+                       zip(speaker_names, speaker_embeds)}
+    
+    
+    ## Run the interactive demo
+    interactive_diarization(similarity_dict, wav, wav_splits)
 
 
 if __name__ == '__main__':
-    demo_similarity_matrix()
-    quit()
-
-    # speaker_dirs = list(Path(r"E:\Datasets\LibriSpeech\train-clean-100").glob("*"))
-    # n_speakers = 100
-    # n_embeds = 15
-    # 
-    # wav_fpaths = list(speaker_dirs[0].glob("**/*.flac"))
-    # target = preprocess_wav(wav_fpaths[0])
-    # 
-    # _, target_partials, wav_slices = encoder.embed_utterance(target, True)
-    # 
-    # for wav_fpath in wav_fpaths[:n_embeds]:
-    #     wav = preprocess_wav(wav_fpath)
-    #     embed = encoder.embed_utterance(wav)
-    #     similarities = target_partials @ embed
-    #     
-    #     times = [(s.start + s.stop) // 2 for s in wav_slices]
-    #     plt.plot(times, similarities)
-    # 
-    # span = range(0, len(target), 16000)
-    # plt.xticks(span, map(lambda t: "%ds" % (t // 16000), span))
-    # plt.ylim(0, 1)
-    # plt.show()
-    
-    
-    # wav_lens = []
-    # for i, speaker_dir in enumerate(speaker_dirs[:n_speakers]):
-    #     wav = audio.preprocess_wav(next(speaker_dir.glob("**/*.flac")))
-    #     wav_lens.append(len(wav))
-    #     similarities, wav_splits = similarity(embed, wav)
-    #     times = [(s.start + s.stop) // 2 for s in wav_splits]
-    #     plt.plot(times, similarities, label="speaker %d" % i)
-    # span = range(0, max(wav_lens), 16000)
-    # plt.legend()
-    # plt.xticks(span, map(lambda t: "%ds" % (t // 16000), span))
-    # plt.ylim(0, 1)
-    # plt.show()
-    # 
+    # demo_similarity_matrix()
+    demo_speaker_diarization()
