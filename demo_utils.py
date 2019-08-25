@@ -67,34 +67,36 @@ def plot_histograms(all_samples, ax=None, names=None, title=""):
     return ax
 
 
-def interactive_diarization(similarity_dict, wav, wav_splits, x_crop=5):
-    # The interval between frames is the interval between two wav splits (assumed constant)
-    times = [((s.start + s.stop) / 2) / sampling_rate for s in wav_splits]
-    rate = 1 / (times[1] - times[0])
-    crop_range = int(np.round(x_crop * rate))
-
+def interactive_diarization(similarity_dict, wav, wav_splits, x_crop=5, show_time=False):
     fig, ax = plt.subplots()
-    lines = [plt.plot([], [], label=name)[0] for name in similarity_dict.keys()]
+    lines = [ax.plot([], [], label=name)[0] for name in similarity_dict.keys()]
+    text = ax.text(0, 0, "", fontsize=10)
     
     def init():
         ax.set_ylim(0.4, 1)
         ax.set_ylabel("Similarity")
-        ax.set_xlabel("Time (seconds)")
+        if show_time:
+            ax.set_xlabel("Time (seconds)")
+        else:
+            ax.set_xticks([])
         ax.set_title("Diarization")
         ax.legend(loc="lower right")
-        return lines
+        return lines + [text]
     
+    times = [((s.start + s.stop) / 2) / sampling_rate for s in wav_splits]
+    rate = 1 / (times[1] - times[0])
+    crop_range = int(np.round(x_crop * rate))
     ticks = np.arange(0, len(wav_splits), rate)
     ref_time = timer()
-    text = []
     
     def update(i):
         # Crop plot
         crop = (max(i - crop_range // 2, 0), i + crop_range // 2)
         ax.set_xlim(i - crop_range // 2, crop[1])
-        crop_ticks = ticks[(crop[0] <= ticks) * (ticks <= crop[1])]
-        ax.set_xticks(crop_ticks)
-        ax.set_xticklabels(np.round(crop_ticks / rate).astype(np.int))
+        if show_time:
+            crop_ticks = ticks[(crop[0] <= ticks) * (ticks <= crop[1])]
+            ax.set_xticks(crop_ticks)
+            ax.set_xticklabels(np.round(crop_ticks / rate).astype(np.int))
 
         # Plot the prediction
         similarities = [s[i] for s in similarity_dict.values()]
@@ -109,9 +111,9 @@ def interactive_diarization(similarity_dict, wav, wav_splits, x_crop=5):
         else:
             message = "Unknown/No speaker"
             color = "black"
-        if len(text) > 0:
-            text.pop().remove()
-        text.append(ax.text(i, 0.96, message, color=color, fontsize=11))
+        text.set_text(message)
+        text.set_c(color)
+        text.set_position((i, 0.96))
         
         # Plot data
         for line, (name, similarities) in zip(lines, similarity_dict.items()):
@@ -123,9 +125,9 @@ def interactive_diarization(similarity_dict, wav, wav_splits, x_crop=5):
             sleep(times[i] - current_time)
         elif current_time - 0.2 > times[i]:
             print("Animation is delayed further than 200ms!", file=stderr)
-        return lines 
+        return lines + [text]
     
-    ani = FuncAnimation(fig, update, frames=len(wav_splits), init_func=init, blit=False,
+    ani = FuncAnimation(fig, update, frames=len(wav_splits), init_func=init, blit=not show_time,
                         repeat=False, interval=1)
     play_wav(wav, blocking=False)
     plt.show()
