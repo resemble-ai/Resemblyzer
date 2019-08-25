@@ -1,4 +1,17 @@
-Resemblyzer allows you to derive a **high-level representation of a voice** through a deep learning model called the voice encoder. Given an audio file of speech, it creates a summary vector of 256 values (an embedding, often shortened to "embed" in this repo) that summarizes the characteristics of the voice spoken. Resemblyzer has many uses:
+Resemblyzer allows you to derive a **high-level representation of a voice** through a deep learning model called the voice encoder. Given an audio file of speech, it creates a summary vector of 256 values (an embedding, often shortened to "embed" in this repo) that summarizes the characteristics of the voice spoken. 
+
+## Demos
+[**Demo 2**](https://github.com/resemble-ai/Resemblyzer/blob/master/demo02_diarization.py): effortless speaker diarization. Recognize who is talking when with only a few seconds of reference audio per speaker (click the image for a video):
+
+[![demo_02](https://i.imgur.com/2MpNauG.png)](https://streamable.com/uef39)
+
+[**Demo 1**](https://github.com/resemble-ai/Resemblyzer/blob/master/demo01_similarity.py): comparing 10 utterances from 10 speakers against 10 other utterances from the same speakers.
+
+![demo_01](plots/sim_matrix_1.png?raw=true)
+
+
+## What can I do with this package?
+Resemblyzer has many uses:
 - **Voice similarity metric**: compare different voices and get a value on how similar they sound. This leads to other applications:
   - **Speaker verification**: create a voice profile for a person from a few seconds of speech (5s - 30s) and compare it to that of new audio. Reject similarity scores below a threshold.
   - **Speaker diarization**: figure out who is talking when by comparing voice profiles with the continuous embedding of a speech segment.
@@ -12,11 +25,7 @@ Resemblyzer allows you to derive a **high-level representation of a voice** thro
 Resemblyzer is fast to execute (around 1000x real-time on a GTX 1080, with a minimum of 10ms for I/O operations), and can run both on CPU or GPU. It is robust to noise. It currently works best on English language only, but should still be able to perform somewhat decently on other languages.
 
 
-## Examples
-Comparing 10 utterances from 10 speakers against 10 other utterances from the same speakers. This was done on a smaller version of LibriSpeech test-clean.
-![sim_matrix_1](plots/sim_matrix_1.png?raw=true)
-
-
+## Code example
 This is a short example showing how to use Resemblyzer:
 ```
 from resemblyzer import VoiceEncoder, preprocess_wav
@@ -31,7 +40,8 @@ embed = encoder.embed_utterance(wav)
 np.set_printoptions(precision=3, suppress=True)
 print(embed)
 ```
-More thorough examples demonstrating the use cases of Resemblyzer can be found in [examples.py](https://github.com/resemble-ai/Resemblyzer/blob/master/examples.py).
+
+I highly suggest giving a peek to the demos to understand how similarity is computed and to see practical usages of the voice encoder.
 
 ## Installation
 `pip install resemblyzer`, python 3.5+ is required.
