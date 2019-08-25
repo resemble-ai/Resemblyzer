@@ -1,7 +1,7 @@
 Resemblyzer allows you to derive a **high-level representation of a voice** through a deep learning model called the voice encoder. Given an audio file of speech, it creates a summary vector of 256 values (an embedding, often shortened to "embed" in this repo) that summarizes the characteristics of the voice spoken. 
 
 ## Demos
-[**Demo 2**](https://github.com/resemble-ai/Resemblyzer/blob/master/demo02_diarization.py): effortless speaker diarization. Recognize who is talking when with only a few seconds of reference audio per speaker (click the image for a video):
+[**Demo 2**](https://github.com/resemble-ai/Resemblyzer/blob/master/demo02_diarization.py): effortless speaker diarization. Recognize who is talking when with only a few seconds of reference audio per speaker *(click the image for a video)*:
 
 [![demo_02](https://i.imgur.com/2MpNauG.png)](https://streamable.com/uef39)
 
