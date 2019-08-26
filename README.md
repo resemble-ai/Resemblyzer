@@ -1,11 +1,11 @@
-Resemblyzer allows you to derive a **high-level representation of a voice** through a deep learning model called the voice encoder. Given an audio file of speech, it creates a summary vector of 256 values (an embedding, often shortened to "embed" in this repo) that summarizes the characteristics of the voice spoken. 
+Resemblyzer allows you to derive a **high-level representation of a voice** through a deep learning model (referred to as the voice encoder). Given an audio file of speech, it creates a summary vector of 256 values (an embedding, often shortened to "embed" in this repo) that summarizes the characteristics of the voice spoken. 
 
 ## Demos
-[**Demo 2**](https://github.com/resemble-ai/Resemblyzer/blob/master/demo02_diarization.py): effortless speaker diarization. Recognize who is talking when with only a few seconds of reference audio per speaker *(click the image for a video)*:
+[**Speaker diarization**](https://github.com/resemble-ai/Resemblyzer/blob/master/demo02_diarization.py): recognize who is talking when with only a few seconds of reference audio per speaker *(click the image for a video)*:
 
 [![demo_02](https://i.imgur.com/2MpNauG.png)](https://streamable.com/uef39)
 
-[**Demo 1**](https://github.com/resemble-ai/Resemblyzer/blob/master/demo01_similarity.py): comparing 10 utterances from 10 speakers against 10 other utterances from the same speakers.
+[**Cross-similarity**](https://github.com/resemble-ai/Resemblyzer/blob/master/demo01_similarity.py): comparing 10 utterances from 10 speakers against 10 other utterances from the same speakers.
 
 ![demo_01](plots/sim_matrix_1.png?raw=true)
 
@@ -14,11 +14,11 @@ Resemblyzer allows you to derive a **high-level representation of a voice** thro
 Resemblyzer has many uses:
 - **Voice similarity metric**: compare different voices and get a value on how similar they sound. This leads to other applications:
   - **Speaker verification**: create a voice profile for a person from a few seconds of speech (5s - 30s) and compare it to that of new audio. Reject similarity scores below a threshold.
-  - **Speaker diarization**: figure out who is talking when by comparing voice profiles with the continuous embedding of a speech segment.
+  - **Speaker diarization**: figure out who is talking when by comparing voice profiles with the continuous embedding of a multispeaker speech segment.
   - **Fake speech detection**: verify if some speech is legitimate or fake by comparing the similarity of possible fake speech to real speech.
-- **High-level feature extraction**: you can use the embeddings generated as feature vectors for your machine learning models! This also leads to other applications:
+- **High-level feature extraction**: you can use the embeddings generated as feature vectors for machine learning or data analysis. This also leads to other applications:
   - **Voice cloning**: see [this other project](https://github.com/CorentinJ/Real-Time-Voice-Cloning).
-  - **Component analysis**: figure out accents, tones, prosody, gender, ... through component analysis of the embeddings.
+  - **Component analysis**: figure out accents, tones, prosody, gender, ... through a component analysis of the embeddings.
   - **Virtual voices**: create entirely new voice embeddings by sampling from a prior distribution.
 - **Loss function**: you can backpropagate through the voice encoder model and use it as a perceptual loss for your deep learning model! The voice encoder is written in PyTorch.
 
