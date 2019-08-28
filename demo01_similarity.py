@@ -52,7 +52,8 @@ assert np.allclose(utt_sim_matrix, utt_sim_matrix2)
 
 
 ## Similarity between two speaker embeddings
-# Embed the speakers, excluding the utterance that will be used for comparison to avoid bias.  
+# Divide the utterances of each speaker in groups of identical size and embed each group as a
+# speaker embedding
 spk_embeds_a = np.array([encoder.embed_speaker(wavs[:len(wavs) // 2]) \
                          for wavs in speaker_wavs.values()])
 spk_embeds_b = np.array([encoder.embed_speaker(wavs[len(wavs) // 2:]) \
