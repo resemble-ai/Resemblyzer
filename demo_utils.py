@@ -3,12 +3,29 @@ from matplotlib.animation import FuncAnimation
 from resemblyzer import sampling_rate
 from matplotlib import cm
 from time import sleep, perf_counter as timer
+from umap import UMAP
 from sys import stderr
 import matplotlib.pyplot as plt
 import sounddevice as sd
 import numpy as np
 
 _default_colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
+_my_colors = np.array([
+    [0, 127, 70],
+    [255, 0, 0],
+    [255, 217, 38],
+    [0, 135, 255],
+    [165, 0, 165],
+    [255, 167, 255],
+    [97, 142, 151],
+    [0, 255, 255],
+    [255, 96, 38],
+    [142, 76, 0],
+    [33, 0, 127],
+    [0, 0, 0],
+    [183, 183, 183],
+    [76, 255, 0],
+], dtype=np.float) / 255 
 
 
 def play_wav(wav, blocking=True):
@@ -66,6 +83,28 @@ def plot_histograms(all_samples, ax=None, names=None, title=""):
     
     return ax
 
+
+def plot_projections(embeds, speakers, ax=None, title=""):
+    if ax is None:
+        _, ax = plt.subplots()
+        
+    # Compute the 2D projections. You could also project to another number of dimensions (e.g. 
+    # for a 3D plot) or use a different different dimensionality reduction like PCA or TSNE.
+    reducer = UMAP(metric="cosine")
+    projs = reducer.fit_transform(embeds)
+    
+    # Draw the projections
+    speakers = np.array(speakers)
+    for color, speaker in zip(_my_colors, np.unique(speakers)):
+        speaker_projs = projs[speakers == speaker]
+        ax.scatter(*speaker_projs.T, c=[color], marker="o", label=speaker)
+        
+    ax.legend(title="Speakers", ncol=2)
+    ax.set_title(title)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_aspect("equal", "datalim")
+    
 
 def interactive_diarization(similarity_dict, wav, wav_splits, x_crop=5, show_time=False):
     fig, ax = plt.subplots()

@@ -6,3 +6,4 @@ scipy>=1.2.1
 typing
 matplotlib>=3.0.0
 sounddevice
+umap-learn
