@@ -3,6 +3,9 @@ from demo_utils import *
 from pathlib import Path
 
 
+# DEMO 02: we'll show how this similarity measure can be used to perform speaker diarization
+# (telling who is speaking when in a recording).
+
 
 ## Get reference audios
 # Load the interview audio from disk

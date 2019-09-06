@@ -6,6 +6,12 @@ from tqdm import tqdm
 import numpy as np
 
 
+# DEMO 03: we'll show one way to visualize these utterance embeddings. Since they are 
+# 256-dimensional, it is much simpler for us to get an overview of their manifold if we reduce 
+# their dimensionality first. By doing so, we can observe clusters that form for utterances of 
+# identical characteristics. What we'll see is that clusters form for distinct speakers, 
+# and they are very tight and even linearly separable.
+
 
 ## Gather the wavs
 wav_fpaths = list(Path("audio_data", "librispeech_test-other").glob("**/*.flac"))
