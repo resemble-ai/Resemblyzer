@@ -10,6 +10,10 @@ Resemblyzer allows you to derive a **high-level representation of a voice** thro
 
 ![demo_01](plots/sim_matrix_1.png?raw=true)
 
+[**Visualizing the manifold**](https://github.com/resemble-ai/Resemblyzer/blob/master/demo03_projection.py): projecting the embeddings of utterances from different speakers in 2D space.
+
+![demo_03](plots/umap_projections.png?raw=true)
+
 
 ## What can I do with this package?
 Resemblyzer has many uses:
