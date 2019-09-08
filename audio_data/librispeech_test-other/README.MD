@@ -1,1 +1,0 @@
-This is a smaller version of the [Librispeech](http://www.openslr.org/12) **test-other** set, with only the 10 first speakers and their 10 first utterances. It is only used in `examples.py` for demonstration purposes, and has no use for the resemblyzer package. Note that this set did not appear in the training of the voice encoder model used in resemblyer.

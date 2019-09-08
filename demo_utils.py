@@ -84,26 +84,32 @@ def plot_histograms(all_samples, ax=None, names=None, title=""):
     return ax
 
 
-def plot_projections(embeds, speakers, ax=None, title=""):
+def plot_projections(embeds, speakers, ax=None, colors=None, markers=None, legend=True, title=""):
     if ax is None:
-        _, ax = plt.subplots()
+        _, ax = plt.subplots(figsize=(6, 6))
         
     # Compute the 2D projections. You could also project to another number of dimensions (e.g. 
     # for a 3D plot) or use a different different dimensionality reduction like PCA or TSNE.
-    reducer = UMAP(metric="cosine")
+    reducer = UMAP()
     projs = reducer.fit_transform(embeds)
     
     # Draw the projections
     speakers = np.array(speakers)
-    for color, speaker in zip(_my_colors, np.unique(speakers)):
+    colors = colors or _my_colors
+    for i, speaker in enumerate(np.unique(speakers)):
         speaker_projs = projs[speakers == speaker]
-        ax.scatter(*speaker_projs.T, c=[color], marker="o", label=speaker)
-        
-    ax.legend(title="Speakers", ncol=2)
+        marker = "o" if markers is None else markers[i]
+        label = speaker if legend else None
+        ax.scatter(*speaker_projs.T, c=[colors[i]], marker=marker, label=label)
+
+    if legend:
+        ax.legend(title="Speakers", ncol=2)
     ax.set_title(title)
     ax.set_xticks([])
     ax.set_yticks([])
-    ax.set_aspect("equal", "datalim")
+    ax.set_aspect("equal")
+    
+    return projs
     
 
 def interactive_diarization(similarity_dict, wav, wav_splits, x_crop=5, show_time=False):

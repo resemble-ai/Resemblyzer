@@ -18,7 +18,7 @@ def preprocess_wav(fpath_or_wav: Union[str, Path, np.ndarray], source_sr: Option
     :param fpath_or_wav: either a filepath to an audio file (many extensions are supported, not 
     just .wav), either the waveform as a numpy array of floats.
     :param source_sr: if passing an audio waveform, the sampling rate of the waveform before 
-    preprocessing. After preprocessing, the waveform's sampling rate will match the data 
+    preprocessing. After preprocessing, the waveform'speaker sampling rate will match the data 
     hyperparameters. If passing a filepath, the sampling rate will be automatically detected and 
     this argument will be ignored.
     """
