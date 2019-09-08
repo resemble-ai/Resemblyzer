@@ -3,18 +3,19 @@ Resemblyzer allows you to derive a **high-level representation of a voice** thro
 N.B.: this repo holds 100mb of audio data for demonstration purpose. To get [the package](https://pypi.org/project/Resemblyzer/) alone, run `pip install resemblyzer` (python 3.5+ is required).
 
 ## Demos
-[**Speaker diarization**](https://github.com/resemble-ai/Resemblyzer/blob/master/demo02_diarization.py): recognize who is talking when with only a few seconds of reference audio per speaker:  
+**Speaker diarization**: [\[Demo 02\]](https://github.com/resemble-ai/Resemblyzer/blob/master/demo02_diarization.py) recognize who is talking when with only a few seconds of reference audio per speaker:  
 *(click the image for a video)*
 
 [![demo_02](https://i.imgur.com/2MpNauG.png)](https://streamable.com/uef39)
 
-[**Cross-similarity**](https://github.com/resemble-ai/Resemblyzer/blob/master/demo01_similarity.py): comparing 10 utterances from 10 speakers against 10 other utterances from the same speakers.
+**Cross-similarity**: [\[Demo 01\]](https://github.com/resemble-ai/Resemblyzer/blob/master/demo01_similarity.py) comparing 10 utterances from 10 speakers against 10 other utterances from the same speakers.
 
 ![demo_01](plots/sim_matrix_1.png?raw=true)
 
-[**Visualizing the manifold**](https://github.com/resemble-ai/Resemblyzer/blob/master/demo03_projection.py): projecting the embeddings of utterances from different speakers in 2D space.
+**Visualizing the manifold**: [\[Demo 03 - left\]](https://github.com/resemble-ai/Resemblyzer/blob/master/demo03_projection.py) projecting the embeddings of 100 utterances (10 each from 10 speakers) in 2D space.  
+[\[Demo 04 - right\]](https://github.com/resemble-ai/Resemblyzer/blob/master/demo04_clustering.py) same as demo 03 but with 251 embeddings all from distinct speakers, highlighting that the model has learned on its own to identify the sex of the speaker.
 
-![demo_03](plots/umap_projections.png?raw=true)
+![demo_03_04](plots/all_clustering.png?raw=true)
 
 
 ## What can I do with this package?
