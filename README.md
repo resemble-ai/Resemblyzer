@@ -1,5 +1,7 @@
 Resemblyzer allows you to derive a **high-level representation of a voice** through a deep learning model (referred to as the voice encoder). Given an audio file of speech, it creates a summary vector of 256 values (an embedding, often shortened to "embed" in this repo) that summarizes the characteristics of the voice spoken. 
 
+N.B.: this repo holds 100mb of audio data for demonstration purpose. To get [the package](https://pypi.org/project/Resemblyzer/) alone, run `pip install resemblyzer` (python 3.5+ is required).
+
 ## Demos
 [**Speaker diarization**](https://github.com/resemble-ai/Resemblyzer/blob/master/demo02_diarization.py): recognize who is talking when with only a few seconds of reference audio per speaker:  
 *(click the image for a video)*
@@ -47,9 +49,6 @@ print(embed)
 ```
 
 I highly suggest giving a peek to the demos to understand how similarity is computed and to see practical usages of the voice encoder.
-
-## Installation
-`pip install resemblyzer`, python 3.5+ is required.
 
 ## Additional info
 Resemblyzer emerged as a side project of the [Real-Time Voice Cloning](https://github.com/CorentinJ/Real-Time-Voice-Cloning) repository. The pretrained model that comes with Resemblyzer is interchangeable with models trained in that repository, so feel free to finetune a model on new data and possibly new languages! The paper from which the voice encoder was implemented is [Generalized End-To-End Loss for Speaker Verification](https://arxiv.org/pdf/1710.10467.pdf) (in which it is called the *speaker* encoder).
