@@ -9,7 +9,7 @@ N.B.: this repo holds 100mb of audio data for demonstration purpose. To get [the
 [![demo_02](https://i.imgur.com/2MpNauG.png)](https://streamable.com/uef39)
 
 **Visualizing the manifold**:  
-[\[Demo 03 - left\]](https://github.com/resemble-ai/Resemblyzer/blob/master/demo03_projection.py) projecting the embeddings of 100 utterances (10 each from 10 speakers) in 2D space.  
+[\[Demo 03 - left\]](https://github.com/resemble-ai/Resemblyzer/blob/master/demo03_projection.py) projecting the embeddings of 100 utterances (10 each from 10 speakers) in 2D space. The utterances from the same speakers form a tight cluster. With a trivial clustering algorithm, the error rate for this example (with data unseen in training) would be 0%.  
 [\[Demo 04 - right\]](https://github.com/resemble-ai/Resemblyzer/blob/master/demo04_clustering.py) same as demo 03 but with 251 embeddings all from distinct speakers, highlighting that the model has learned on its own to identify the sex of the speaker.
 
 ![demo_03_04](plots/all_clustering.png?raw=true)
