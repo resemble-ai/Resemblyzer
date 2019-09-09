@@ -6,7 +6,6 @@ from time import sleep, perf_counter as timer
 from umap import UMAP
 from sys import stderr
 import matplotlib.pyplot as plt
-import sounddevice as sd
 import numpy as np
 
 _default_colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
@@ -29,10 +28,14 @@ _my_colors = np.array([
 
 
 def play_wav(wav, blocking=True):
-    # Small bug with sounddevice.play: the audio is cut 0.5 second too early. We pad it to make up 
-    # for that
-    wav = np.concatenate((wav, np.zeros(sampling_rate // 2)))
-    sd.play(wav, sampling_rate, blocking=blocking)
+    try:
+        import sounddevice as sd
+        # Small bug with sounddevice.play: the audio is cut 0.5 second too early. We pad it to 
+        # make up for that
+        wav = np.concatenate((wav, np.zeros(sampling_rate // 2)))
+        sd.play(wav, sampling_rate, blocking=blocking)
+    except Exception as e:
+        print("Failed to play audio: %s" % repr(e))
 
 
 def plot_similarity_matrix(matrix, labels_a=None, labels_b=None, ax: plt.Axes=None, title=""):
