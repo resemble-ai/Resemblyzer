@@ -8,7 +8,7 @@ N.B.: this repo holds 100mb of audio data for demonstration purpose. To get [the
 
 [![demo_02](https://i.imgur.com/2MpNauG.png)](https://streamable.com/uef39)
 
-**Fake speech detection**: [\[Demo 05\]](https://github.com/resemble-ai/Resemblyzer/blob/master/demo05_fake_speech_detection.py) modest detection of fake speech by comparing the similarity of unknown speech against ground truth reference audio.
+**Fake speech detection**: [\[Demo 05\]](https://github.com/resemble-ai/Resemblyzer/blob/master/demo05_fake_speech_detection.py) modest detection of fake speech by comparing the similarity of 12 unknown utterances (6 real ones, 6 fakes) against ground truth reference audio. Scores above the dashed line are predicted as real, so the model makes one error here.
 
 ![demo_05](plots/fake_speech_detection.png?raw=true)
 
