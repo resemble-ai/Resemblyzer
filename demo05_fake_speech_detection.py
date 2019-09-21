@@ -53,6 +53,7 @@ scores, names, speakers = scores[sort], names[sort], speakers[sort]
 ## Plot the scores
 fig, _ = plt.subplots(figsize=(6, 6))
 indices = np.arange(len(scores))
+plt.axhline(0.84, ls="dashed", label="Prediction threshold", c="black")
 plt.bar(indices[speakers == "real"], scores[speakers == "real"], color="green", label="Real")
 plt.bar(indices[speakers == "fake"], scores[speakers == "fake"], color="red", label="Fake")
 plt.legend()
