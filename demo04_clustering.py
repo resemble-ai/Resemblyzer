@@ -39,9 +39,12 @@ encoder = VoiceEncoder()
 utterance_embeds = np.array(list(map(encoder.embed_utterance, wavs)))
 
 
-## Project the embeddings in 2D space
+## Project the embeddings in 2D space. 
 _, ax = plt.subplots(figsize=(6, 6))
-projs = plot_projections(utterance_embeds, speakers, ax, colors, markers, False)
+# Passing min_dist=1 to UMAP will make it so the projections don't necessarily need to fit in 
+# clusters, so that you can have a better idea of what the manifold really looks like. 
+projs = plot_projections(utterance_embeds, speakers, ax, colors, markers, False,
+                         min_dist=1)
 ax.set_title("Embeddings for %d speakers" % (len(speakers)))
 ax.scatter([], [], marker="x", c="black", label="Male speaker")
 ax.scatter([], [], marker="o", c="black", label="Female speaker")
