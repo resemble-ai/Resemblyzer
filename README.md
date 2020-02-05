@@ -43,7 +43,7 @@ Resemblyzer is fast to execute (around 1000x real-time on a GTX 1080, with a min
 
 ## Code example
 This is a short example showing how to use Resemblyzer:
-```
+```python
 from resemblyzer import VoiceEncoder, preprocess_wav
 from pathlib import Path
 import numpy as np
