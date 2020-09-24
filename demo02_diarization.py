@@ -16,7 +16,7 @@ wav = preprocess_wav(wav_fpath)
 # Cut some segments from single speakers as reference audio
 segments = [[0, 5.5], [6.5, 12], [17, 25]]
 speaker_names = ["Kyle Gass", "Sean Evans", "Jack Black"]
-speaker_wavs = [wav[int(s[0] * sampling_rate):int(s[1]) * sampling_rate] for s in segments]
+speaker_wavs = [wav[int(s[0] * sampling_rate):int(s[1] * sampling_rate)] for s in segments]
   
     
 ## Compare speaker embeds to the continuous embedding of the interview
