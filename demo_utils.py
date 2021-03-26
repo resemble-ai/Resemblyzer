@@ -1,6 +1,6 @@
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.animation import FuncAnimation
-from resemblyzer import sampling_rate
+from resemblyzer.audio import sampling_rate
 from matplotlib import cm
 from time import sleep, perf_counter as timer
 from umap import UMAP
