@@ -1,15 +1,16 @@
-from resemblyzer.hparams import *
-from resemblyzer import audio
-from pathlib import Path
 from typing import Union, List
-from torch import nn
 from time import perf_counter as timer
+from pathlib import Path
+
+from torchaudio.transforms import MelSpectrogram, MelScale
+from torch import nn
 import numpy as np
 import torch
 
+from resemblyzer.hparams import *
 
 class VoiceEncoder(nn.Module):
-    def __init__(self, device: Union[str, torch.device]=None, verbose=True, weights_fpath: Union[Path, str]=None):
+    def __init__(self, device: Union[str, torch.device] = None, verbose=True, weights_fpath: Union[Path, str] = None):
         """
         If None, defaults to cuda if it is available on your machine, otherwise the model will
         run on cpu. Outputs are always returned on the cpu, as numpy arrays.
@@ -42,6 +43,15 @@ class VoiceEncoder(nn.Module):
         start = timer()
         checkpoint = torch.load(weights_fpath, map_location="cpu")
         self.load_state_dict(checkpoint["model_state"], strict=False)
+
+        self.wav_to_mel_spectrogram = MelSpectrogram(sample_rate=sampling_rate,
+                                                     n_fft=int(sampling_rate * mel_window_length / 1000),
+                                                     hop_length=int(sampling_rate * mel_window_step / 1000),
+                                                     n_mels=mel_n_channels,
+                                                     norm='slaney',
+                                                     mel_scale='slaney')
+        self.spectrogram_to_mel = MelScale(sample_rate=sampling_rate,
+                                           n_mels=mel_n_channels)
         self.to(device)
 
         if verbose:
@@ -96,7 +106,7 @@ class VoiceEncoder(nn.Module):
         frame_step = int(np.round((sampling_rate / rate) / samples_per_frame))
         assert 0 < frame_step, "The rate is too high"
         assert frame_step <= partials_n_frames, "The rate is too low, it should be %f at least" % \
-            (sampling_rate / (samples_per_frame * partials_n_frames))
+                                                (sampling_rate / (samples_per_frame * partials_n_frames))
 
         # Compute the slices
         wav_slices, mel_slices = [], []
@@ -116,13 +126,12 @@ class VoiceEncoder(nn.Module):
 
         return wav_slices, mel_slices
 
-    def embed_utterance(self, wav: np.ndarray, return_partials=False, rate=1.3, min_coverage=0.75):
+    def embed_utterance(self, wav: torch.tensor, return_partials=False, rate=1.3, min_coverage=0.75):
         """
         Computes an embedding for a single utterance. The utterance is divided in partial
         utterances and an embedding is computed for each. The complete utterance embedding is the
         L2-normed average embedding of the partial utterances.
 
-        TODO: independent batched version of this function
 
         :param wav: a preprocessed utterance waveform as a numpy array of float32
         :param return_partials: if True, the partial embeddings will also be returned along with
@@ -141,37 +150,39 @@ class VoiceEncoder(nn.Module):
         (n_partials, model_embedding_size) and the wav partials as a list of slices will also be
         returned.
         """
+        if wav.ndim == 1:
+            batched = False
+        elif wav.ndim == 2:
+            batched = True
+        else:
+            raise ValueError("wav must be a 1D (non-batched) or 2D tensor (batched)")
+
         # Compute where to split the utterance into partials and pad the waveform with zeros if
         # the partial utterances cover a larger range.
-        wav_slices, mel_slices = self.compute_partial_slices(len(wav), rate, min_coverage)
+        wav_slices, mel_slices = self.compute_partial_slices(wav.shape[-1], rate, min_coverage)
         max_wave_length = wav_slices[-1].stop
         if max_wave_length >= len(wav):
-            wav = np.pad(wav, (0, max_wave_length - len(wav)), "constant")
+            wav = torch.nn.functional.pad(wav, (0, max_wave_length - wav.shape[-1]), "constant")
 
         # Split the utterance into partials and forward them through the model
-        mel = audio.wav_to_mel_spectrogram(wav)
-        mels = np.array([mel[s] for s in mel_slices])
-        with torch.no_grad():
-            mels = torch.from_numpy(mels).to(self.device)
-            partial_embeds = self(mels).cpu().numpy()
+        indices = [1, 2] if batched else [0, 1]
+        mel = self.wav_to_mel_spectrogram(wav).transpose(*indices)
+
+        if batched:
+            n_slices = len(mel_slices)
+            batch_size = mel.shape[0]
+            mels = torch.stack([mel[:, s] for s in mel_slices], dim=1)
+            mels = mels.view(-1, *mels.shape[2:])
+        else:
+            mels = torch.stack([mel[s] for s in mel_slices])
+        partial_embeds = self(mels)
+        if batched:
+            partial_embeds = partial_embeds.view(batch_size, n_slices, -1)
 
         # Compute the utterance embedding from the partial embeddings
-        raw_embed = np.mean(partial_embeds, axis=0)
-        embed = raw_embed / np.linalg.norm(raw_embed, 2)
+        raw_embed = torch.mean(partial_embeds, dim=-2)
+        embed = raw_embed / torch.norm(raw_embed, dim=-1)
 
         if return_partials:
             return embed, partial_embeds, wav_slices
         return embed
-
-    def embed_speaker(self, wavs: List[np.ndarray], **kwargs):
-        """
-        Compute the embedding of a collection of wavs (presumably from the same speaker) by
-        averaging their embedding and L2-normalizing it.
-
-        :param wavs: list of wavs a numpy arrays of float32.
-        :param kwargs: extra arguments to embed_utterance()
-        :return: the embedding as a numpy array of float32 of shape (model_embedding_size,).
-        """
-        raw_embed = np.mean([self.embed_utterance(wav, return_partials=False, **kwargs) \
-                             for wav in wavs], axis=0)
-        return raw_embed / np.linalg.norm(raw_embed, 2)
