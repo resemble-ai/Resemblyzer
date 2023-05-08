@@ -8,7 +8,7 @@ with open("requirements_package.txt", "r") as f:
 
 setup(
     name="Resemblyzer",
-    version="0.1.1-dev",
+    version="0.1.3",
     packages=find_packages(),
     package_data={
         "resemblyzer": ["pretrained.pt"]
