@@ -34,7 +34,7 @@ names = np.array([fpath.stem for fpath in wav_fpaths])
 
 # Take 6 real embeddings at random, and leave the 6 others for testing
 gt_indices = np.random.choice(*np.where(speakers == "real"), 6, replace=False) 
-mask = np.zeros(len(embeds), dtype=np.bool)
+mask = np.zeros(len(embeds), dtype=bool)
 mask[gt_indices] = True
 gt_embeds = embeds[mask]
 gt_names = names[mask]
