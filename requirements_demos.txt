@@ -1,5 +1,5 @@
 librosa>=0.9.1
-numpy>=1.10.1
+numpy>=1.20.0
 webrtcvad>=2.0.10
 torch>=1.0.1
 scipy>=1.2.1

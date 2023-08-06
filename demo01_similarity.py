@@ -68,7 +68,7 @@ spk_sim_matrix = np.inner(spk_embeds_a, spk_embeds_b)
 fix, axs = plt.subplots(2, 2, figsize=(8, 10))
 labels_a = ["%s-A" % i for i in speaker_wavs.keys()]
 labels_b = ["%s-B" % i for i in speaker_wavs.keys()]
-mask = np.eye(len(utt_sim_matrix), dtype=np.bool)
+mask = np.eye(len(utt_sim_matrix), dtype=bool)
 plot_similarity_matrix(utt_sim_matrix, labels_a, labels_b, axs[0, 0],
                        "Cross-similarity between utterances\n(speaker_id-utterance_group)")
 plot_histograms((utt_sim_matrix[mask], utt_sim_matrix[np.logical_not(mask)]), axs[0, 1],

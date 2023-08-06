@@ -24,7 +24,7 @@ _my_colors = np.array([
     [0, 0, 0],
     [183, 183, 183],
     [76, 255, 0],
-], dtype=np.float) / 255 
+], dtype=float) / 255
 
 
 def play_wav(wav, blocking=True):

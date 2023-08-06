@@ -16,7 +16,7 @@ import numpy as np
 ## Gather the wavs
 wav_fpaths = list(Path("audio_data", "librispeech_test-other").glob("**/*.flac"))
 speakers = list(map(lambda wav_fpath: wav_fpath.parent.stem, wav_fpaths))
-wavs = np.array(list(map(preprocess_wav, tqdm(wav_fpaths, "Preprocessing wavs", len(wav_fpaths)))))
+wavs = np.array(list(map(preprocess_wav, tqdm(wav_fpaths, "Preprocessing wavs", len(wav_fpaths)))), dtype=object)
 speaker_wavs = {speaker: wavs[list(indices)] for speaker, indices in 
                 groupby(range(len(wavs)), lambda i: speakers[i])}
 
