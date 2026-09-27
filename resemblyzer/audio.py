@@ -10,6 +10,17 @@ import struct
 int16_max = (2 ** 15) - 1
 
 
+def float_to_int16(wav):
+    """Scale float audio to signed 16-bit samples.
+
+    Samples outside [-1, 1] are clipped. A straight cast wraps, so 1.5
+    becomes a negative sample and the voice activity check hears a
+    different signal.
+    """
+    scaled = np.round(np.asarray(wav) * int16_max)
+    return np.clip(scaled, -int16_max, int16_max).astype(np.int16)
+
+
 def preprocess_wav(fpath_or_wav: Union[str, Path, np.ndarray], source_sr: Optional[int]=None):
     """
     Applies preprocessing operations to a waveform either on disk or in memory such that  
@@ -69,7 +80,7 @@ def trim_long_silences(wav):
     wav = wav[:len(wav) - (len(wav) % samples_per_window)]
     
     # Convert the float waveform to 16-bit mono PCM
-    pcm_wave = struct.pack("%dh" % len(wav), *(np.round(wav * int16_max)).astype(np.int16))
+    pcm_wave = struct.pack("%dh" % len(wav), *float_to_int16(wav))
     
     # Perform voice activation detection
     voice_flags = []
