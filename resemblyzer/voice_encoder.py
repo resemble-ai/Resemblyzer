@@ -40,7 +40,7 @@ class VoiceEncoder(nn.Module):
             raise Exception("Couldn't find the voice encoder pretrained model at %s." %
                             weights_fpath)
         start = timer()
-        checkpoint = torch.load(weights_fpath, map_location="cpu")
+        checkpoint = torch.load(weights_fpath, map_location="cpu", weights_only=True)
         self.load_state_dict(checkpoint["model_state"], strict=False)
         self.to(device)
 
@@ -116,7 +116,8 @@ class VoiceEncoder(nn.Module):
 
         return wav_slices, mel_slices
 
-    def embed_utterance(self, wav: np.ndarray, return_partials=False, rate=1.3, min_coverage=0.75):
+    def embed_utterance(self, wav: np.ndarray, return_partials=False, rate=1.3, min_coverage=0.75,
+                        partial_batch_size=64):
         """
         Computes an embedding for a single utterance. The utterance is divided in partial
         utterances and an embedding is computed for each. The complete utterance embedding is the
@@ -136,11 +137,17 @@ class VoiceEncoder(nn.Module):
         then the last partial utterance will be considered by zero-padding the audio. Otherwise,
         it will be discarded. If there aren't enough frames for one partial utterance,
         this parameter is ignored so that the function always returns at least one slice.
+        :param partial_batch_size: how many partial utterances to forward at once. Partials are
+        independent, so chunking keeps peak memory bounded. Short utterances still run as a single
+        batch when they contain fewer partials than this.
         :return: the embedding as a numpy array of float32 of shape (model_embedding_size,). If
         <return_partials> is True, the partial utterances as a numpy array of float32 of shape
         (n_partials, model_embedding_size) and the wav partials as a list of slices will also be
         returned.
         """
+        if partial_batch_size < 1:
+            raise ValueError("partial_batch_size must be at least 1")
+
         # Compute where to split the utterance into partials and pad the waveform with zeros if
         # the partial utterances cover a larger range.
         wav_slices, mel_slices = self.compute_partial_slices(len(wav), rate, min_coverage)
@@ -148,12 +155,17 @@ class VoiceEncoder(nn.Module):
         if max_wave_length >= len(wav):
             wav = np.pad(wav, (0, max_wave_length - len(wav)), "constant")
 
-        # Split the utterance into partials and forward them through the model
+        # Split the utterance into partials and forward them through the model in chunks.
+        # One batch of every partial is what makes high-rate diarization run out of GPU memory.
         mel = audio.wav_to_mel_spectrogram(wav)
-        mels = np.array([mel[s] for s in mel_slices])
-        with torch.no_grad():
-            mels = torch.from_numpy(mels).to(self.device)
-            partial_embeds = self(mels).cpu().numpy()
+        partial_embeds = []
+        infer = getattr(torch, "inference_mode", torch.no_grad)
+        with infer():
+            for start in range(0, len(mel_slices), partial_batch_size):
+                batch = np.stack([mel[s] for s in mel_slices[start:start + partial_batch_size]])
+                batch = torch.from_numpy(batch).to(self.device)
+                partial_embeds.append(self(batch).cpu().numpy())
+        partial_embeds = np.concatenate(partial_embeds, axis=0)
 
         # Compute the utterance embedding from the partial embeddings
         raw_embed = np.mean(partial_embeds, axis=0)

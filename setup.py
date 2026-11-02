@@ -13,7 +13,7 @@ setup(
     package_data={
         "resemblyzer": ["pretrained.pt"]
     },
-    python_requires=">=3.5",
+    python_requires=">=3.11",
     install_requires=requirements,
     author="Corentin Jemine",
     author_email="corentin@resemble.ai",

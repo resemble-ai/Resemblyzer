@@ -1,11 +1,10 @@
-from scipy.ndimage.morphology import binary_dilation
+from scipy.ndimage import binary_dilation
 from resemblyzer.hparams import *
 from pathlib import Path
 from typing import Optional, Union
 import numpy as np
 import webrtcvad
 import librosa
-import struct
 
 int16_max = (2 ** 15) - 1
 
@@ -28,8 +27,8 @@ def preprocess_wav(fpath_or_wav: Union[str, Path, np.ndarray], source_sr: Option
     else:
         wav = fpath_or_wav
     
-    # Resample the wav
-    if source_sr is not None:
+    # Resample the wav. A file that is already at the encoder rate is left unchanged.
+    if source_sr is not None and source_sr != sampling_rate:
         wav = librosa.resample(wav, orig_sr=source_sr, target_sr=sampling_rate)
         
     # Apply the preprocessing: normalize volume and shorten long silences 
@@ -68,8 +67,8 @@ def trim_long_silences(wav):
     # Trim the end of the audio to have a multiple of the window size
     wav = wav[:len(wav) - (len(wav) % samples_per_window)]
     
-    # Convert the float waveform to 16-bit mono PCM
-    pcm_wave = struct.pack("%dh" % len(wav), *(np.round(wav * int16_max)).astype(np.int16))
+    # Convert the float waveform to 16-bit little-endian mono PCM
+    pcm_wave = np.round(wav * int16_max).astype("<i2").tobytes()
     
     # Perform voice activation detection
     voice_flags = []

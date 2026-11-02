@@ -25,10 +25,9 @@ speaker_wavs = [wav[int(s[0] * sampling_rate):int(s[1] * sampling_rate)] for s i
 # diarization, but it is not so useful for when you only need a summary embedding of the 
 # entire utterance. A rate of 2 would have been enough, but 16 is nice for the sake of the 
 # demonstration. 
-# We'll exceptionally force to run this on CPU, because it uses a lot of RAM and most GPUs 
-# won't have enough. There's a speed drawback, but it remains reasonable.
-encoder = VoiceEncoder("cpu")
-print("Running the continuous embedding on cpu, this might take a while...")
+# Partials are forwarded in small batches, so a high rate fits in GPU memory.
+encoder = VoiceEncoder()
+print("Running the continuous embedding on %s..." % encoder.device.type)
 _, cont_embeds, wav_splits = encoder.embed_utterance(wav, return_partials=True, rate=16)
 
 
